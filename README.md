@@ -1,6 +1,58 @@
 # TodoAngular
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.5.
+[https://github.com/mbachmann/todo-angular](https://github.com/mbachmann/todo-angular)
+
+## Prerequisites
+Both the CLI and generated project have dependencies that require Node 14.7  or higher, together with NPM 6.14.13 or higher.
+
+
+## Links
+
+* [Angular Home](https://angular.io/)
+* [Angular Cli Github](https://github.com/angular/angular-cli)
+* [Angular Cli Home](https://cli.angular.io/)
+
+
+### Clean up old Angular cli version
+
+```sh
+    npm uninstall -g angular-cli
+```
+### New Installation
+
+Global package:
+
+```sh
+    npm install -g @angular/cli@latest
+```
+
+
+## Create a new project
+
+Create new project with angular-cli:
+
+    ng new PROJECT_NAME
+
+Go into project directory:
+
+    cd PROJECT_NAME
+
+Replace `PROJECT_NAME` with e.g. `todo-angular`.
+
+* The `new` command will ask you about adding a routing... please press `yes`.
+* For the stylesheet format you can use `scss`. We will use in the tutorial scss. 
+
+```sh
+ng new todo-angular
+? Would you like to add Angular routing? Yes
+? Which stylesheet format would you like to use?
+  CSS
+❯ SCSS   
+  Sass  
+  Less   
+  Stylus 
+```
+
 
 ## Development server
 
@@ -22,3 +74,1153 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+
+
+## Install the OpenApi Tools
+
+```sh
+npm i -D  @openapitools/openapi-generator-cli
+```
+
+create the folder `src/app/openapi`.  
+
+Put the yaml file `api-docs.yaml` from   http://localhost:8080/v3/api-docs.yaml  in the folder `src/app/openapi`.
+
+Add the `generate:api` command to the scripts section of `package.json`.
+
+```json 
+  "scripts": {
+    ...
+    ...
+    "generate:api": "openapi-generator-cli generate -g typescript-angular -i  src/app/openapi/api-docs.yaml -o src/app/openapi-gen"
+  },
+```
+
+    "generate:api": "openapi-generator generate -g typescript-angular -i  http://localhost:8080/v3/api-docs -o src/app/openapi-gen"
+
+
+## Generate the Model and the Backend API
+
+Having one file to define your API is helpful and can save you a lot of development time and prevent possible bugs 
+caused by different models or API implementations in your frontend and backend code.
+
+OpenAPI provides a good specification with helpful documentation. 
+Additionally, many existing backends use Swagger for their API documentation, therefore it should also be possible 
+ to use this code generation for frontend applications where you cannot to modify the corresponding backend.
+
+Due to the many supported languages and frameworks, it can be used in nearly every project,  
+and the initial setup is not very hard.
+
+
+The _model_ and _api_ is generated based on the `api-docs.yaml` file in the folder `src/app/openapi-gen`. The following command creates the files.
+
+```sh
+npm run generate:api
+```
+
+The generator puts the code to the `src/app/openapi-gen` folder. 
+
+<br>
+
+![openapi-gen.png](readme/openapi-gen.png)
+
+<br>
+
+Add the url to the backend to the files `enviroments/enviroment.ts` and `enviroment.prod.ts`.
+
+**enviroment.ts**
+
+```typescript
+export const environment = {
+  production: false,
+  API_BASE_PATH: 'https://todo-h2.united-portal.com'
+};
+```
+
+**enviroment.prod.ts**
+
+```typescript
+export const environment = {
+  production: true,
+  API_BASE_PATH: 'https://todo-h2.united-portal.com'
+};
+```
+
+<br>
+
+Add the generated API to the `app.module.ts`. The App Module contains also the TodoListsComponent and the TodoItemsComponent. 
+Please uncomment them later.
+
+```typescript
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import {HttpClientModule} from "@angular/common/http";
+import {ApiModule, BASE_PATH} from "./openapi-gen";
+// import { TodoListsComponent } from './todo-lists/todo-lists.component';
+// import { TodoItemsComponent } from './todo-items/todo-items.component';
+import {environment} from "../environments/environment";
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    // TodoListsComponent,
+    // TodoItemsComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    ApiModule
+  ],
+  providers: [
+    { provide: BASE_PATH, useValue: environment.API_BASE_PATH }
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+```
+
+Verify the code generation by restarting the project again.
+
+## Install Bootstrap
+
+We are styling the TodoApp with Bootstrap 5.x. 
+
+```sh
+npm install --save @popperjs/core
+npm install --save bootstrap
+```
+
+
+Please add below code into `angular.json` file:
+
+```json
+"styles": [
+              ...
+              
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.scss"
+          ],
+"scripts": [
+              ...
+              "node_modules/@popperjs/core/dist/umd/popper.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js"
+           ]
+```
+
+Please add below code into `styles.scss` file:
+
+```scss
+@import '~bootstrap/scss/bootstrap';
+``` 
+
+
+## Install FontAwesome
+
+```sh
+npm install --save font-awesome
+``` 
+ 
+Please add below code into `angular.json` file:
+
+```json
+"styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/font-awesome/css/font-awesome.min.css",
+              "src/styles.scss"
+          ], 
+``` 
+
+Please add below code into `styles.scss` file:
+
+```scss
+@import '~font-awesome/css/font-awesome.css';
+$fa-font-path : '../node_modules/font-awesome/fonts';
+``` 
+
+## Create a utils file
+
+Create a folder `src/shared`. In this folder create a file `utils.ts`.
+
+```typescript
+var isoDateFormat = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
+
+export function parseIsoDateStrToDate(value: any) {
+  if (typeof value === "string" && isoDateFormat.test(value)){
+    return new Date(value);
+  }
+  return value
+}
+```
+
+
+## Create the TodoLists component
+
+```sh
+ng generate component TodoLists
+```
+
+Add to the `todo-lists.component.scss` file the rules:
+
+```scss
+.legend .row:nth-of-type(odd) div {
+  background-color:#EEEEEE;
+}
+
+.clickable:hover {
+  box-shadow: 0 0 1px 1px rgba(0,0,0,0.19),0 0 3px 3px rgba(0,0,0,0.19);
+  cursor: pointer;
+}
+```
+
+Add to the `todo-lists.component.ts` file the typescript code:
+
+```typescript
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Subscription} from "rxjs";
+import {TodoItemControllerService, TodoItemListsDTO} from "../openapi-gen";
+
+@Component({
+  selector: 'app-todo-lists',
+  templateUrl: './todo-lists.component.html',
+  styleUrls: ['./todo-lists.component.scss']
+})
+export class TodoListsComponent implements OnInit, OnDestroy  {
+
+  private subscription: Subscription | undefined;
+  todoLists: TodoItemListsDTO = {};
+
+  constructor(private readonly todoItemControllerService: TodoItemControllerService) {}
+
+  ngOnDestroy(): void {
+
+    if (this.subscription != undefined)  {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  ngOnInit(): void {
+    this.subscription = this.todoItemControllerService.getListIDs().subscribe(
+      data => {
+        this.todoLists = data;
+      },
+      err => console.log(err)
+    );
+  }
+}
+
+```
+
+Add to the `todo-lists.component.html` file the template code:
+
+```html
+<h4 class="component-title">Todo Lists</h4>
+<p class="sub-para todo-info">Example angular application with Spring Boot Backend and OpenApi generated REST API</p>
+<p class="sub-para todo-listinfo">Todo Lists: {{todoLists.count}}</p>
+
+<section class="container legend"  >
+  <div class="row " *ngFor="let listId of todoLists.todoItemList; let i = index">
+    <div [routerLink]="['/todoitem/',listId ]" class="col-sm-8 py-1 my-1 clickable">List {{i+1}} : {{listId}}</div>
+  </div>
+</section>
+```
+
+## Create the TodoItems component
+
+```sh
+ng generate component TodoItems
+```
+
+Add to the `todo-items.component.scss` file the rules:
+
+```scss
+.legend .row:nth-of-type(odd) div {
+  background-color:#EEEEEE;
+}
+
+.clickable:hover {
+  box-shadow: 0 0 1px 1px rgba(0,0,0,0.19),0 0 3px 3px rgba(0,0,0,0.19);
+  cursor: pointer;
+}
+
+
+.cmd-buttons {
+  padding-left: 5px;
+  padding-right: 5px;
+  float: right;
+}
+.cmd-buttons:hover {
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.19), 0 0 1px 1px rgba(0, 0, 0, 0.19);
+}
+
+.form-control {
+  font-size: 16px;
+  padding-left: 15px;
+  outline: none;
+  border: 1px solid #E8E8E8;
+}
+
+```
+
+Add to the `todo-items.component.ts` file the typescript code:
+
+```typescript
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Subscription} from "rxjs";
+import {TodoItem, TodoItemControllerService} from "../openapi-gen";
+import {ActivatedRoute, Router} from "@angular/router";
+import {parseIsoDateStrToDate} from "../shared/utils";
+
+@Component({
+  selector: 'app-todo-items',
+  templateUrl: './todo-items.component.html',
+  styleUrls: ['./todo-items.component.scss']
+})
+export class TodoItemsComponent implements OnInit {
+
+  @ViewChild('taskNameTextField', {static: true}) taskNameTextField: ElementRef | undefined;
+  private routeSubscription: Subscription | undefined;
+  private subscription: Subscription | undefined;
+  private listId: string = "";
+  todoItems: Array<TodoItem> = [];
+  private editIndex: number = -1;
+
+  constructor(private readonly todoItemControllerService: TodoItemControllerService,
+              private route: ActivatedRoute,
+              private router: Router,
+  ) {
+
+  }
+
+  ngOnDestroy(): void {
+
+    if (this.routeSubscription != undefined) {
+      this.routeSubscription.unsubscribe();
+    }
+    if (this.subscription != undefined) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  ngOnInit(): void {
+    this.routeSubscription = this.route.params.subscribe(params => {
+      this.listId = params['id'];
+      console.log(this.listId);
+      this.refreshList(this.listId);
+    });
+
+
+  }
+
+  getListId(id: number): string | undefined {
+    if (this.todoItems.length > 0) {
+      return this.todoItems[id].listId;
+    }
+    return "";
+  }
+
+  onDelete(itemId: number | undefined) {
+    if (itemId !== undefined) {
+      this.todoItemControllerService.deleteTodoItem(itemId).subscribe(
+        data => {
+          this.refreshList(this.listId);
+        },
+        err => console.log(err)
+      );
+    }
+  }
+
+  onEdit(index: number) {
+    if (this.taskNameTextField !== undefined) {
+      this.taskNameTextField.nativeElement.value = this.todoItems[index].taskName;
+      this.editIndex = index;
+    }
+  }
+
+  onDone(itemId: number | undefined) {
+    if (itemId !== undefined) {
+      this.todoItemControllerService.changeDoneState(itemId).subscribe(
+        data => {
+          this.refreshList(this.listId);
+        },
+        err => console.log(err)
+      );
+    }
+  }
+
+  refreshList(listId: string) {
+    this.subscription = this.todoItemControllerService.getItem(listId).subscribe(
+      data => {
+        this.todoItems = data;
+        // @ts-ignore
+        this.todoItems.forEach(item => item.createdAt = parseIsoDateStrToDate(item.createdAt));
+        if (this.taskNameTextField !== undefined) {
+          this.taskNameTextField.nativeElement.focus();
+          this.taskNameTextField.nativeElement.select();
+        }
+      },
+      err => console.log(err)
+    );
+  }
+
+  onEnterKeyDown() {
+    if (this.taskNameTextField !== undefined) {
+      let taskName: string = this.taskNameTextField.nativeElement.value;
+      if (taskName.length > 0) {
+        if (this.editIndex > 0) {
+          this.todoItems[this.editIndex].taskName = taskName;
+          this.todoItemControllerService.editTodoItem(this.todoItems[this.editIndex]).subscribe(
+            data => {
+              this.refreshList(this.listId);
+            },
+            err => console.log(err)
+          );
+
+          this.editIndex = -1;
+        } else {
+          let todoItem: TodoItem = {
+            taskName: taskName,
+            listId: this.listId,
+            done: false
+          }
+          this.todoItemControllerService.newTodoItem(todoItem).subscribe(
+            data => {
+              this.refreshList(this.listId);
+            },
+            err => console.log(err)
+          );
+        }
+        this.taskNameTextField.nativeElement.value = "";
+      }
+    }
+  }
+}
+
+```
+
+Add to the `todo-items.component.html` file the template code:
+
+```html
+<h4 class="component-title">Todo Items</h4>
+
+<p class="sub-para todo-info">Todo List &nbsp;&nbsp; : {{getListId(0)}}</p>
+<p class="sub-para todo-listinfo">Todo Items : {{todoItems.length}} Items</p>
+
+<div class="container" style="padding-left: 0;">
+  <div class="row">
+    <div class="col-sm-9 my-3 pe-0">
+    <input type="text" id="taskNameTextField"  #taskNameTextField class="form-control" (keydown.enter)="onEnterKeyDown()"
+           placeholder="Input task name then tap Enter to add">
+    </div>
+  </div>
+</div>
+<section class="container legend">
+  <div class="row " *ngFor="let todoItem of todoItems; let i = index">
+    <div class="col-sm-9 py-1 my-1 clickable">
+      <input [checked]="todoItem.done" (click)=onDone(todoItem.itemId) class="form-check-input" type="checkbox"/>
+      &nbsp;<span [ngStyle]="{'text-decoration': (todoItem.done) ? 'line-through' : 'none'}"> {{todoItem.taskName}}</span>
+      <span (click)=onDelete(todoItem.itemId) class="cmd-buttons"><i class="fa fa-trash"></i></span>
+      <span (click)=onEdit(i) class="cmd-buttons"><i class="fa fa-edit"></i></span>
+    </div>
+  </div>
+</section>
+```
+
+## Define the Routings
+
+The file app-routing.module.ts contains the mappings from routes to components.
+
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import {TodoListsComponent} from "./todo-lists/todo-lists.component";
+import {TodoItemsComponent} from "./todo-items/todo-items.component";
+
+const routes: Routes = [
+  {
+    path: 'home',
+    component: TodoListsComponent
+  },
+  {
+    path: 'todoitem',
+    component: TodoItemsComponent
+  },
+  {
+    path: 'todoitem/:id',
+    component: TodoItemsComponent
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: '/home'
+  }
+
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+
+```
+
+
+
+## Define the AppComponent
+
+Add to the `app.component.scss` file the rules:
+
+```scss
+
+.app {
+  background-color:#FFF;
+  min-height: 100vh;
+}
+
+@media (max-width: 767px) {
+  .navbar-collapse {
+    margin-top: 10px;
+  }
+}
+
+.nav-link:hover {
+  background-color:#DDD;
+}
+
+.navbar {
+  -webkit-box-shadow: 0 8px 6px -6px #999;
+  -moz-box-shadow: 0 8px 6px -6px #999;
+  box-shadow: 0 8px 6px -6px #999;
+  background-color:#f8f8f8;
+}
+
+.navbar-brand {
+  cursor: pointer;
+  width: 140px;
+}
+
+main {
+  padding-top: 70px;
+  padding-bottom: 70px;
+}
+
+
+
+```
+
+Add to the `app.component.ts` file the typescript code:
+
+```typescript
+import {Component, OnDestroy, OnInit} from '@angular/core';
+
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
+})
+export class AppComponent implements OnInit, OnDestroy {
+  title = 'todo-angular';
+
+  ngOnInit(): void {
+  }
+
+  ngOnDestroy(){
+  }
+
+}
+
+```
+
+Add to the `app.component.html` file the template code:
+
+```html
+<div class="container px-0 app">
+
+  <nav class="fixed-top navbar navbar-light navbar-expand-md bg-faded px-2">
+    <div [routerLink]="['/home']" class="navbar-brand"><img alt="todo-logo" src="assets/todo.svg" width="50px"> Todo App
+    </div>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbar">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" [routerLink]="['/home']">Start Page</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/mbachmann/spring-boot-todo-app" target="_blank">Github
+            Backend</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/mbachmann/todo-angular" target="_blank">Github Frontend</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="px-3 mt-4 main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="fixed-bottom px-3 mt-4 bg-light">
+    <section class="container d-flex justify-content-center justify-content-lg-between p-4 border-bottom" >
+
+      <!-- Left -->
+      <div class="me-5 d-none d-lg-block">
+        <span>Get connected with us on social networks:</span>
+      </div>
+      <!-- Left -->
+
+      <!-- Right -->
+      <div>
+        <a href="https://www.youtube.com/channel/UCGLcphLMTcUNZRIRGUVu8rg" target="_blank" class="me-4 text-reset">
+          <i class="fa fa-youtube-play"></i>
+        </a>
+        <a href="https://twitter.com/mbachmann4" target="_blank" class="me-4 text-reset">
+          <i class="fa fa-twitter"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/matthias-bachmann-b3809541/" target="_blank"  class="me-4 text-reset">
+          <i class="fa fa-linkedin"></i>
+        </a>
+        <a href="https://github.com/mbachmann" target="_blank" class="me-4 text-reset">
+          <i class="fa fa-github"></i>
+        </a>
+      </div>
+      <!-- Right -->
+    </section>
+    <!-- Section: Social media -->
+  </footer>
+</div>
+
+```
+
+
+## Add global styles 
+
+Please replace the code below with the content of the  `styles.scss` file:
+
+```scss
+/* You can add global styles to this file, and also import other style files */
+
+@import '~bootstrap/scss/bootstrap';
+@import '~font-awesome/css/font-awesome.css';
+$fa-font-path : '../node_modules/font-awesome/fonts';
+
+body {
+  font-size: 18px;
+  line-height: 1.58;
+  background: #6699FF;
+  background: -webkit-linear-gradient(to left, #336699, #228899);
+  background: linear-gradient(to left, #336699, #228899);
+  color: #333;
+  padding-bottom: 70px;
+  padding-top: 40px;
+}
+
+.component-title {
+  color: #228899;
+}
+
+.sub-para {
+  font-size: small;
+}
+
+.todo-info {
+  margin-bottom: 6px;
+}
+
+.todo-listinfo {
+  margin-bottom: 30px;
+}
+
+```
+
+## Add the image todo.svg to the assets folder
+
+Copy the content to the file `todo.svg`.
+
+```svg
+<?xml version="1.0" ?>
+<svg id="Layer_1" style="enable-background:new 0 0 128 128;" version="1.1" viewBox="0 0 128 128" xml:space="preserve"
+     xmlns="http://www.w3.org/2000/svg"><style type="text/css">
+	.st0 {
+    opacity: 0.2;
+    fill: #FFFFFF;
+  }
+
+  .st1 {
+    fill: #FFFFFF;
+  }
+
+  .st2 {
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st3 {
+    fill: #5E61A3;
+  }
+
+  .st4 {
+    opacity: 0.5;
+    fill: #242C88;
+  }
+
+  .st5 {
+    fill: #39C89A;
+  }
+
+  .st6 {
+    fill: #CAEAFB;
+  }
+
+  .st7 {
+    fill: #589FFF;
+  }
+
+  .st8 {
+    fill: #FF5751;
+  }
+
+  .st9 {
+    fill: #BC8D66;
+  }
+
+  .st10 {
+    opacity: 0.7;
+    fill: #FFFFFF;
+  }
+
+  .st11 {
+    fill: #F1C92A;
+  }
+
+  .st12 {
+    opacity: 0.4;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st13 {
+    fill: #F3877E;
+  }
+
+  .st14 {
+    fill: #83D689;
+  }
+
+  .st15 {
+    opacity: 0.4;
+    fill: #242C88;
+  }
+
+  .st16 {
+    opacity: 0.2;
+    fill: #242C88;
+  }
+
+  .st17 {
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 0.1, 6;
+  }
+
+  .st18 {
+    fill: #FFC408;
+  }
+
+  .st19 {
+    opacity: 0.4;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 0.1, 6;
+  }
+
+  .st20 {
+    fill: none;
+    stroke: #CAEAFB;
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st21 {
+    fill: none;
+    stroke: #CAEAFB;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st22 {
+    opacity: 0.4;
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st23 {
+    opacity: 0.5;
+  }
+
+  .st24 {
+    fill: #242C88;
+  }
+
+  .st25 {
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 0.1, 6;
+  }
+
+  .st26 {
+    opacity: 0.5;
+    fill: #FFFFFF;
+  }
+
+  .st27 {
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st28 {
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st29 {
+    fill: #E5BD9E;
+  }
+
+  .st30 {
+    fill: #A06D47;
+  }
+
+  .st31 {
+    opacity: 0.3;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 0.1, 6;
+  }
+
+  .st32 {
+    opacity: 0.1;
+    fill: #242C88;
+  }
+
+  .st33 {
+    opacity: 0.5;
+    fill: #FF5751;
+  }
+
+  .st34 {
+    opacity: 0.2;
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st35 {
+    opacity: 0.3;
+    clip-path: url(#SVGID_2_);
+  }
+
+  .st36 {
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 0, 6;
+  }
+
+  .st37 {
+    opacity: 0.3;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 0, 6;
+  }
+
+  .st38 {
+    clip-path: url(#SVGID_4_);
+  }
+
+  .st39 {
+    opacity: 0.2;
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st40 {
+    opacity: 0.3;
+  }
+
+  .st41 {
+    opacity: 0.4;
+    fill: #FFFFFF;
+  }
+
+  .st42 {
+    opacity: 0.5;
+    fill: #CAEAFB;
+  }
+
+  .st43 {
+    opacity: 0.6;
+    fill: #242C88;
+  }
+
+  .st44 {
+    opacity: 0.5;
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st45 {
+    opacity: 0.3;
+    fill: #242C88;
+  }
+
+  .st46 {
+    opacity: 0.2;
+  }
+
+  .st47 {
+    clip-path: url(#SVGID_6_);
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st48 {
+    opacity: 0.2;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st49 {
+    clip-path: url(#SVGID_8_);
+    fill: #FFFFFF;
+  }
+
+  .st50 {
+    clip-path: url(#SVGID_8_);
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st51 {
+    opacity: 0.2;
+    clip-path: url(#SVGID_8_);
+    fill: #242C88;
+  }
+
+  .st52 {
+    opacity: 0.2;
+    clip-path: url(#SVGID_8_);
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st53 {
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 1.848;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st54 {
+    opacity: 0.4;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st55 {
+    opacity: 0.2;
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st56 {
+    opacity: 7.000000e-02;
+    fill: #242C88;
+  }
+
+  .st57 {
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st58 {
+    opacity: 0.4;
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st59 {
+    opacity: 0.2;
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st60 {
+    fill: none;
+    stroke: #FF5751;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+
+  .st61 {
+    fill: none;
+    stroke: #242C88;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 10;
+  }
+</style>
+  <rect class="st1" height="83" width="68" x="11" y="17"/>
+  <rect class="st2" height="83" width="68" x="11" y="17"/>
+  <path class="st14" d="M33,46H23c-1.1,0-2-0.9-2-2V34c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C35,45.1,34.1,46,33,46z"/>
+  <path class="st14" d="M32.8,66H23c-1.1,0-2-0.9-2-2V54c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v9.8C35,65,34,66,32.8,66z"/>
+  <path class="st14" d="M33,87H23c-1.1,0-2-0.9-2-2V75c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C35,86.1,34.1,87,33,87z"/>
+  <path class="st2" d="M33,46H23c-1.1,0-2-0.9-2-2V34c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C35,45.1,34.1,46,33,46z"/>
+  <path class="st2" d="M32.8,66H23c-1.1,0-2-0.9-2-2V54c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v9.8C35,65,34,66,32.8,66z"/>
+  <path class="st2" d="M33,87H23c-1.1,0-2-0.9-2-2V75c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C35,86.1,34.1,87,33,87z"/>
+  <path class="st16" d="M79,101V24H28c-1.1,0-2,0.9-2,2v75H79z"/>
+  <rect class="st1" height="83" width="68" x="31" y="29"/>
+  <rect class="st2" height="83" width="68" x="31" y="29"/>
+  <line class="st34" x1="63" x2="75" y1="53" y2="53"/>
+  <line class="st34" x1="63" x2="87" y1="48" y2="48"/>
+  <path class="st14" d="M54,58H44c-1.1,0-2-0.9-2-2V46c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C56,57.1,55.1,58,54,58z"/>
+  <polyline class="st2" points="45.3,51.7 48.2,54.4 53.9,48.6 "/>
+  <line class="st34" x1="63" x2="75" y1="74" y2="74"/>
+  <line class="st34" x1="63" x2="87" y1="68" y2="68"/>
+  <path class="st14"
+        d="M54,78H44c-1.1,0-2-0.9-2-2V66c0-1.1,0.9-2,2-2h9.8c1.2,0,2.2,1,2.2,2.2V76C56,77.1,55.1,78,54,78z"/>
+  <polyline class="st2" points="45.3,71.9 48.2,74.6 53.9,68.9 "/>
+  <line class="st34" x1="63" x2="75" y1="94" y2="94"/>
+  <line class="st34" x1="63" x2="87" y1="89" y2="89"/>
+  <path class="st14" d="M54,98H44c-1.1,0-2-0.9-2-2V86c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C56,97.1,55.1,98,54,98z"/>
+  <path class="st2" d="M54,58H44c-1.1,0-2-0.9-2-2V46c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C56,57.1,55.1,58,54,58z"/>
+  <path class="st2"
+        d="M54,78H44c-1.1,0-2-0.9-2-2V66c0-1.1,0.9-2,2-2h9.8c1.2,0,2.2,1,2.2,2.2V76C56,77.1,55.1,78,54,78z"/>
+  <path class="st2" d="M54,98H44c-1.1,0-2-0.9-2-2V86c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2v10C56,97.1,55.1,98,54,98z"/>
+  <polygon class="st16" points="99,57.6 65.2,77.5 53.6,94.9 74.4,93.1 99,78.6 "/>
+  <g><polygon class="st1" points="111.4,50.1 73.8,87.7 54.1,94.6 61,74.9 98.6,37.3  "/>
+    <rect class="st18" height="18.1" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -18.9596 79.2808)" width="53.2"
+          x="59.6" y="53.5"/>
+    <rect class="st16" height="5.3" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -20.8293 83.7946)" width="53.2"
+          x="64.1" y="64.4"/>
+    <polygon class="st3" points="57.1,86 54.1,94.4 62.5,91.4  "/>
+    <polygon class="st2" points="111.4,50.1 73.8,87.7 54.1,94.6 61,74.9 98.6,37.3  "/>
+    <path class="st13" d="M111.4,50.1l6-6c1.7-1.7,1.7-4.4,0-6l-6.8-6.8c-1.7-1.7-4.4-1.7-6,0l-6,6L111.4,50.1z"/>
+    <path class="st2" d="M111.4,50.1l6-6c1.7-1.7,1.7-4.4,0-6l-6.8-6.8c-1.7-1.7-4.4-1.7-6,0l-6,6L111.4,50.1z"/>
+    <line class="st2" x1="80.6" x2="106.9" y1="73.4" y2="47.1"/>
+    <line class="st2" x1="70" x2="76.1" y1="84" y2="77.9"/>
+    <rect class="st1" height="18.1" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -0.5282 86.9153)" width="7.4"
+          x="100.9" y="35.1"/>
+    <rect class="st16" height="18.1" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -0.5282 86.9153)" width="7.4"
+          x="100.9" y="35.1"/>
+    <rect class="st2" height="18.1" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -0.5282 86.9153)" width="7.4"
+          x="100.9" y="35.1"/></g></svg>
+```

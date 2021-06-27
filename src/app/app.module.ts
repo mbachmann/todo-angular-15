@@ -3,16 +3,27 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import {HttpClientModule} from "@angular/common/http";
+import {ApiModule, BASE_PATH} from "./openapi-gen";
+import { TodoListsComponent } from './todo-lists/todo-lists.component';
+import { TodoItemsComponent } from './todo-items/todo-items.component';
+import {environment} from "../environments/environment";
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    TodoListsComponent,
+    TodoItemsComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule,
+    ApiModule
   ],
-  providers: [],
+  providers: [
+    { provide: BASE_PATH, useValue: environment.API_BASE_PATH }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
