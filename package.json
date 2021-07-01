@@ -1,13 +1,23 @@
 {
   "name": "todo-angular",
   "version": "0.0.0",
+  "config": {
+    "app": "todo-angular",
+    "repo": "hub.docker.com"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start-prod": "node --max_old_space_size=64000 node_modules/@angular/cli/bin/ng serve --prod",
     "build": "ng build",
+    "build-prod": "node --max_old_space_size=64000 node_modules/@angular/cli/bin/ng build --prod",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "generate:api": "openapi-generator-cli generate --type-mappings=DateTime=Date -g typescript-angular -i  src/app/openapi/api-docs.yaml -o src/app/openapi-gen"
+    "generate:api": "openapi-generator-cli generate --type-mappings=DateTime=Date -g typescript-angular -i  src/app/openapi/api-docs.yaml -o src/app/openapi-gen",
+    "docker-build": "DOCKER_BUILDKIT=0 docker build -t uportal/todo-angular .",
+    "docker-run": "cross-conf-env docker run --rm --name todo-angular -p 4000:80 uportal/todo-angular",
+    "docker-push": "cross-conf-env docker push uportal/todo-angular",
+    "docker-login": "cat ~/.docker_password.txt | docker login --username uportal --password-stdin"
   },
   "private": true,
   "dependencies": {
@@ -33,6 +43,7 @@
     "@openapitools/openapi-generator-cli": "^2.3.5",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
+    "cross-conf-env": "^1.1.2",
     "jasmine-core": "~3.7.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",

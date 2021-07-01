@@ -5,6 +5,8 @@
 ## Prerequisites
 Both the CLI and generated project have dependencies that require Node 14.7  or higher, together with NPM 6.14.13 or higher.
 
+The related Spring Boot Backend can be found here: [https://github.com/mbachmann/spring-boot-todo-app](https://github.com/mbachmann/spring-boot-todo-app)
+
 
 ## Links
 
@@ -109,7 +111,7 @@ OpenAPI provides a good specification with helpful documentation.
 Additionally, many existing backends use Swagger for their API documentation, therefore it should also be possible 
  to use this code generation for frontend applications where you cannot to modify the corresponding backend.
 
-Due to the many supported languages and frameworks, it can be used in nearly every project,  
+Due to the many supported languages and frameworks, it can be used in nearly every project, 
 and the initial setup is not very hard.
 
 
