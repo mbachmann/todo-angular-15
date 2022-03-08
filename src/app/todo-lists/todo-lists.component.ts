@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import {TodoItemControllerService, TodoItemListsDTO} from "../openapi-gen";
+import {TodoService} from "../services/todo.service";
 
 @Component({
   selector: 'app-todo-lists',
@@ -12,7 +13,8 @@ export class TodoListsComponent implements OnInit, OnDestroy  {
   private subscription: Subscription | undefined;
   todoLists: TodoItemListsDTO = {};
 
-  constructor(private readonly todoItemControllerService: TodoItemControllerService) {}
+  constructor(private readonly todoItemControllerService: TodoItemControllerService,
+              private readonly  todoService: TodoService) {}
 
   ngOnDestroy(): void {
 
@@ -22,13 +24,22 @@ export class TodoListsComponent implements OnInit, OnDestroy  {
   }
 
   ngOnInit(): void {
-    this.subscription = this.todoItemControllerService.getListIDs().subscribe(
-      data => {
-        this.todoLists = data;
-      },
-      err => console.log(err)
-    );
+    this.useOwnService();
+    // this.useOpenApiService();
   }
 
+  useOwnService(): void {
+    this.subscription = this.todoService.getListIDs().subscribe({
+      next: (data) => this.todoLists = data,
+      error:(err) =>  console.log(err)
+    });
+  }
+
+  useOpenApiService(): void {
+    this.subscription = this.todoItemControllerService.getListIDs().subscribe({
+      next: (data) => this.todoLists = data,
+      error:(err) =>  console.log(err)
+    });
+  }
 
 }
