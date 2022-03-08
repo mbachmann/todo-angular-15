@@ -271,6 +271,58 @@ export function parseIsoDateStrToDate(value: any) {
 }
 ```
 
+## Create an own Service 
+
+```sh
+ng generate service services/todo
+```
+
+In the folder app/services add to the `todo.service.ts` file the typescript code:
+
+```typescript
+import { environment } from '../../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TodoService {
+
+  private baseUrl: string;
+  constructor(private http: HttpClient) {
+    this.baseUrl = environment.API_BASE_PATH;
+  }
+
+  getListIDs():Observable<TodoItemListsDTO> {
+    return this.http.get(this.baseUrl + "/api/v1/listids");
+  }
+}
+```
+
+add to the `todo.service.spec.ts` file the typescript code:
+
+```typescript
+import {TestBed} from '@angular/core/testing';
+
+import {TodoService} from './todo.service';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+
+describe('TodoServiceService', () => {
+  let service: TodoService;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [TodoService],
+    })
+    service = TestBed.inject(TodoService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+
+```
 
 ## Create the TodoLists component
 
@@ -297,6 +349,7 @@ Add to the `todo-lists.component.ts` file the typescript code:
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import {TodoItemControllerService, TodoItemListsDTO} from "../openapi-gen";
+import {TodoService} from "../services/todo.service";
 
 @Component({
   selector: 'app-todo-lists',
@@ -308,7 +361,8 @@ export class TodoListsComponent implements OnInit, OnDestroy  {
   private subscription: Subscription | undefined;
   todoLists: TodoItemListsDTO = {};
 
-  constructor(private readonly todoItemControllerService: TodoItemControllerService) {}
+  constructor(private readonly todoItemControllerService: TodoItemControllerService,
+              private readonly  todoService: TodoService) {}
 
   ngOnDestroy(): void {
 
@@ -318,13 +372,24 @@ export class TodoListsComponent implements OnInit, OnDestroy  {
   }
 
   ngOnInit(): void {
-    this.subscription = this.todoItemControllerService.getListIDs().subscribe(
-      data => {
-        this.todoLists = data;
-      },
-      err => console.log(err)
-    );
+    this.useOwnService();
+    // this.useOpenApiService();
   }
+
+  useOwnService(): void {
+    this.subscription = this.todoService.getListIDs().subscribe({
+      next: (data) => this.todoLists = data,
+      error:(err) =>  console.log(err)
+    });
+  }
+
+  useOpenApiService(): void {
+    this.subscription = this.todoItemControllerService.getListIDs().subscribe({
+      next: (data) => this.todoLists = data,
+      error:(err) =>  console.log(err)
+    });
+  }
+
 }
 
 ```
@@ -341,6 +406,39 @@ Add to the `todo-lists.component.html` file the template code:
     <div [routerLink]="['/todoitem/',listId ]" class="col-sm-8 py-1 my-1 clickable">List {{i+1}} : {{listId}}</div>
   </div>
 </section>
+```
+
+Add to the `todo-lists.component.spec.ts` file the typescript code:
+
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { TodoListsComponent } from './todo-lists.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+
+describe('TodoListsComponent', () => {
+  let component: TodoListsComponent;
+  let fixture: ComponentFixture<TodoListsComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      declarations: [ TodoListsComponent ]
+    })
+    .compileComponents();
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TodoListsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
 ```
 
 ## Create the TodoItems component
@@ -544,6 +642,52 @@ Add to the `todo-items.component.html` file the template code:
 </section>
 ```
 
+Add to the `todo-items.component.spec.ts` file the typescript code:
+
+```typescript
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { TodoItemsComponent } from './todo-items.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {RouterTestingModule} from "@angular/router/testing";
+import {ActivatedRoute} from "@angular/router";
+import {of} from "rxjs";
+
+describe('TodoItemsComponent', () => {
+  let component: TodoItemsComponent;
+  let fixture: ComponentFixture<TodoItemsComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, RouterTestingModule,],
+      declarations: [ TodoItemsComponent ],
+      providers:[
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({
+              id: 2,
+            }),
+          },
+        },
+      ]
+    })
+    .compileComponents();
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TodoItemsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+```
+
 ## Define the Routings
 
 The file app-routing.module.ts contains the mappings from routes to components.
@@ -714,7 +858,45 @@ Add to the `app.component.html` file the template code:
 </div>
 
 ```
+Add to the `app.component.spec.ts` file the typescript code:
 
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule
+      ],
+      declarations: [
+        AppComponent
+      ],
+    }).compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have as title 'todo-angular'`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('todo-angular');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement;
+    expect(compiled.querySelector('.navbar-brand').textContent).toContain('Todo App');
+  });
+});
+```
 
 ## Add global styles 
 
