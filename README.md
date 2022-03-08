@@ -19,6 +19,13 @@
 * [Add the image todo.svg](#add-the-image-todosvg-to-the-assets-folder)
 
 
+## Preview
+
+
+![img.png](readme/img.png)
+
+<br>
+
 ## Prerequisites
 Both the CLI and generated project have dependencies that require Node 14.7  or higher, together with NPM 6.14.13 or higher.
 
