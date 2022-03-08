@@ -2,6 +2,23 @@
 
 [https://github.com/mbachmann/todo-angular](https://github.com/mbachmann/todo-angular)
 
+## Content
+
+* [Create a new Project](#create-a-new-project)
+* [Install the OpenApi Tools](#install-the-openapi-tools)
+* [Generate the Model and the Backend API](#generate-the-model-and-the-backend-api)
+* [Install Bootstrap](#install-bootstrap)
+* [Install FontAwesome](#install-fontawesome)
+* [Create a utils file](#create-a-utils-file)
+* [Create an own Service](#create-an-own-service)
+* [Create the TodoLists component](#create-the-todolists-component)
+* [Create the TodoItems component](#create-the-todoitems-component)
+* [Define the Routings](#define-the-routings)
+* [Define the AppComponent](#define-the-appcomponent)
+* [Add global styles](#add-global-styles)
+* [Add the image todo.svg](#add-the-image-todosvg-to-the-assets-folder)
+
+
 ## Prerequisites
 Both the CLI and generated project have dependencies that require Node 14.7  or higher, together with NPM 6.14.13 or higher.
 
