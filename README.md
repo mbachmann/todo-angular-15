@@ -99,7 +99,17 @@ Add the `generate:api` command to the scripts section of `package.json`.
   },
 ```
 
-    "generate:api": "openapi-generator generate -g typescript-angular -i  http://localhost:8080/v3/api-docs -o src/app/openapi-gen"
+Adjust the version to 5.3.0 of the generator in the openapitools.json:
+
+```json
+{
+  "$schema": "node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "5.3.0"
+  }
+}
+```
 
 
 ## Generate the Model and the Backend API
