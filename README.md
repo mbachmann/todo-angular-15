@@ -1,4 +1,4 @@
-# Todo Angular based on angular 13.x.x
+# Todo Angular based on angular 14.x.x
 
 [https://github.com/mbachmann/todo-angular](https://github.com/mbachmann/todo-angular)
 
@@ -123,14 +123,14 @@ Add the `generate:api` command to the scripts section of `package.json`.
   },
 ```
 
-Adjust the version to 5.3.0 of the generator in the openapitools.json:
+Adjust the version to 6.2.1 (5.3.0 for angular 13)of the generator in the openapitools.json:
 
 ```json
 {
   "$schema": "node_modules/@openapitools/openapi-generator-cli/config.schema.json",
   "spaces": 2,
   "generator-cli": {
-    "version": "5.3.0"
+    "version": "6.2.1"
   }
 }
 ```
@@ -253,7 +253,7 @@ Please add below code into `angular.json` file:
 Please add below code into `styles.scss` file:
 
 ```scss
-@import '~bootstrap/scss/bootstrap';
+@import 'bootstrap/scss/bootstrap';
 ``` 
 
 
@@ -276,7 +276,7 @@ Please add below code into `angular.json` file:
 Please add below code into `styles.scss` file:
 
 ```scss
-@import '~font-awesome/css/font-awesome.css';
+@import 'font-awesome/css/font-awesome.css';
 $fa-font-path : '../node_modules/font-awesome/fonts';
 ``` 
 
