@@ -123,14 +123,14 @@ Add the `generate:api` command to the scripts section of `package.json`.
   },
 ```
 
-Adjust the version to 6.2.1 (5.3.0 for angular 13)of the generator in the openapitools.json:
+Adjust the version to 5.3.0of the generator in the openapitools.json:
 
 ```json
 {
   "$schema": "node_modules/@openapitools/openapi-generator-cli/config.schema.json",
   "spaces": 2,
   "generator-cli": {
-    "version": "6.2.1"
+    "version": "5.3.0"
   }
 }
 ```

@@ -11,5 +11,4 @@ model/models.ts
 model/todoItem.ts
 model/todoItemListsDTO.ts
 model/todoItemsDTO.ts
-param.ts
 variables.ts

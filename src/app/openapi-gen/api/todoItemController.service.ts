@@ -18,14 +18,10 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
-// @ts-ignore
-import { TodoItem } from '../model/todoItem';
-// @ts-ignore
-import { TodoItemListsDTO } from '../model/todoItemListsDTO';
-// @ts-ignore
-import { TodoItemsDTO } from '../model/todoItemsDTO';
+import { TodoItem } from '../model/models';
+import { TodoItemListsDTO } from '../model/models';
+import { TodoItemsDTO } from '../model/models';
 
-// @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 
@@ -41,15 +37,11 @@ export class TodoItemControllerService {
     public configuration = new Configuration();
     public encoder: HttpParameterCodec;
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string|string[], @Optional() configuration: Configuration) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
         if (configuration) {
             this.configuration = configuration;
         }
         if (typeof this.configuration.basePath !== 'string') {
-            if (Array.isArray(basePath) && basePath.length > 0) {
-                basePath = basePath[0];
-            }
-
             if (typeof basePath !== 'string') {
                 basePath = this.basePath;
             }
@@ -59,7 +51,6 @@ export class TodoItemControllerService {
     }
 
 
-    // @ts-ignore
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
         if (typeof value === "object" && value instanceof Date === false) {
             httpParams = this.addToHttpParamsRecursive(httpParams, value);
@@ -79,7 +70,8 @@ export class TodoItemControllerService {
                 (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
             } else if (value instanceof Date) {
                 if (key != null) {
-                    httpParams = httpParams.append(key, (value as Date).toISOString().substr(0, 10));
+                    httpParams = httpParams.append(key,
+                        (value as Date).toISOString().substr(0, 10));
                 } else {
                    throw Error("key may not be null if value is Date");
                 }
@@ -128,19 +120,13 @@ export class TodoItemControllerService {
         }
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/state/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        return this.httpClient.request<TodoItem>('put', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.put<TodoItem>(`${this.configuration.basePath}/api/v1/state/${encodeURIComponent(String(id))}`,
+            null,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -185,19 +171,12 @@ export class TodoItemControllerService {
         }
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/delete/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        return this.httpClient.request<boolean>('delete', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.delete<boolean>(`${this.configuration.basePath}/api/v1/delete/${encodeURIComponent(String(id))}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -251,22 +230,15 @@ export class TodoItemControllerService {
             localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
         }
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/edit`;
-        return this.httpClient.request<TodoItem>('put', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.put<TodoItem>(`${this.configuration.basePath}/api/v1/edit`,
+            todoItem,
             {
                 context: localVarHttpContext,
-                body: todoItem,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -305,19 +277,12 @@ export class TodoItemControllerService {
         }
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/list`;
-        return this.httpClient.request<Array<TodoItemsDTO>>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.get<Array<TodoItemsDTO>>(`${this.configuration.basePath}/api/v1/list`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -362,19 +327,12 @@ export class TodoItemControllerService {
         }
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/list/${this.configuration.encodeParam({name: "listId", value: listId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
-        return this.httpClient.request<Array<TodoItem>>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.get<Array<TodoItem>>(`${this.configuration.basePath}/api/v1/list/${encodeURIComponent(String(listId))}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -419,19 +377,12 @@ export class TodoItemControllerService {
         }
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/item/${this.configuration.encodeParam({name: "itemId", value: itemId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
-        return this.httpClient.request<TodoItem>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.get<TodoItem>(`${this.configuration.basePath}/api/v1/item/${encodeURIComponent(String(itemId))}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -472,19 +423,12 @@ export class TodoItemControllerService {
         }
 
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/listids`;
-        return this.httpClient.request<TodoItemListsDTO>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.get<TodoItemListsDTO>(`${this.configuration.basePath}/api/v1/listids`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -538,22 +482,15 @@ export class TodoItemControllerService {
             localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
         }
 
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
+        let responseType_: 'text' | 'json' = 'json';
+        if(localVarHttpHeaderAcceptSelected && localVarHttpHeaderAcceptSelected.startsWith('text')) {
+            responseType_ = 'text';
         }
 
-        let localVarPath = `/api/v1/new`;
-        return this.httpClient.request<TodoItem>('post', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.post<TodoItem>(`${this.configuration.basePath}/api/v1/new`,
+            todoItem,
             {
                 context: localVarHttpContext,
-                body: todoItem,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
