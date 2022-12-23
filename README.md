@@ -1,4 +1,4 @@
-# Todo Angular based on angular 14.x.x
+# Todo Angular based on angular 15.x.x
 
 [https://github.com/mbachmann/todo-angular](https://github.com/mbachmann/todo-angular)
 
